@@ -1,0 +1,33 @@
+# System files
+.DS_Store
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyc
+
+# Python environments
+venv/
+.venv/
+
+# Python test and type checking
+.pytest_cache/
+.mypy_cache/
+
+# Node modules
+node_modules/
+
+# Coverage reports
+.coverage
+.coveragerc
+reports/
+
+# Misc
+.vscode/
+.nyc_output/
+.scannerwork/
+
+# Utils directory
+*/utils
+utils/assets/
