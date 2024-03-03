@@ -31,3 +31,9 @@ reports/
 # Utils directory
 */utils
 utils/assets/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Streamlit
+.streamlit/secrets.toml
