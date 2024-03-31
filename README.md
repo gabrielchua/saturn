@@ -3,6 +3,10 @@
 
 **S**imple **A**utomatic **T**agger yo**U** **R**eally **N**eeded
 
+<p align="center">
+<img src="demo.gif" width="50%" />
+</p>
+
 ## Quick Start
 
 1. Clone this repository
