@@ -1,7 +1,7 @@
 # SATURN 🪐
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://saturn-demo.streamlit.app/)
 
-Simple Automatic Tagger yoU Really Needed
+**S**imple **A**utomatic **T**agger yo**U** **R**eally **N**eeded
 
 ## Quick Start
 
