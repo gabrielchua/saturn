@@ -6,7 +6,7 @@ import numpy as np
 import streamlit as st
 from openai import AsyncOpenAI
 
-client = AsyncOpenAI()
+client = AsyncOpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 def set_page_configurations():
     """
