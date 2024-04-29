@@ -83,8 +83,7 @@ def render_download_page():
                 data=st.session_state["tagged_df"].to_csv(index=False), 
                 file_name=f"{st.session_state.uploaded_file_name[:-4]}_tagged.csv",
                 mime="text/csv")
-
-
+    
 async def start_async_tag_job(dataframe: pd.DataFrame,
                               column_to_classify: str,
                               tagging_configurations: pd.DataFrame) -> pd.DataFrame:
@@ -145,7 +144,7 @@ async def zero_shot_classifier_async(semaphore,
     """
     async with semaphore:
         response = await client.chat.completions.create(
-            model="gpt-3.5-turbo-0125",
+            model=LLM,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": text}
