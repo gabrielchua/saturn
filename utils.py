@@ -2,13 +2,24 @@
 Utils.py
 """
 import asyncio
+from typing import (
+    Optional,
+    Tuple
+    )
+
 import numpy as np
+import pandas as pd
 import streamlit as st
 from openai import AsyncOpenAI
 
+from .config import (
+    LLM,
+    MAX_CONCURRENT_CALLS
+    )
+
 client = AsyncOpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-def set_page_configurations():
+def set_page_configurations() -> None:
     """
     Sets page configurations
     """
@@ -16,7 +27,7 @@ def set_page_configurations():
                        page_icon="🪐",
                        layout="wide",)
 
-def set_session_state():
+def set_session_state() -> None:
     """
     Sets session state
     """
@@ -26,7 +37,7 @@ def set_session_state():
             st.session_state[state] = None
     st.session_state["configured"] = False
 
-def set_custom_css():
+def set_custom_css() -> None:
     """
     Applies custom CSS
     """
@@ -51,7 +62,7 @@ def set_custom_css():
             </style>
             """, unsafe_allow_html=True)
 
-def config_fail_validation(tagging_configurations):
+def config_fail_validation(tagging_configurations: pd.DataFrame) -> Tuple[bool, Optional[str]]:
     """
     Checks if the configuration df fails validation
     """
@@ -63,9 +74,25 @@ def config_fail_validation(tagging_configurations):
         return True, "Some categories are missing descriptions. Please fill in all descriptions."
     return False, None
 
-async def automatically_tag_async(dataframe, column_to_classify, tagging_configurations):
+@st.experimental_fragment
+def render_download_page():
+    """
+    Render download page
+    """
+    st.download_button("Download Tagged Data", 
+                data=st.session_state["tagged_df"].to_csv(index=False), 
+                file_name=f"{st.session_state.uploaded_file_name[:-4]}_tagged.csv",
+                mime="text/csv")
+
+
+async def start_async_tag_job(dataframe: pd.DataFrame,
+                              column_to_classify: str,
+                              tagging_configurations: pd.DataFrame) -> pd.DataFrame:
+    """
+    Tag the dataframe
+    """
     # Setup
-    semaphore = asyncio.Semaphore(10)  # Limit to 10 concurrent API calls
+    semaphore = asyncio.Semaphore(MAX_CONCURRENT_CALLS)  # Limit to 10 concurrent API calls
     df = dataframe.copy()
     df["original_row_number"] = df.index
 
@@ -109,8 +136,10 @@ async def automatically_tag_async(dataframe, column_to_classify, tagging_configu
     df.loc[df["Tag"] == "NOT_TAGGED_UNCLEAR", "Confidence"] = np.nan
     return df
 
-
-async def zero_shot_classifier_async(semaphore, text, system_prompt, logit_bias_dict):
+async def zero_shot_classifier_async(semaphore,
+                                     text: str,
+                                     system_prompt: str,
+                                     logit_bias_dict: dict[str, int]) -> Tuple[int, float]:
     """
     Asynchronous zero-shot classifier using OpenAI's API
     """
@@ -132,8 +161,7 @@ async def zero_shot_classifier_async(semaphore, text, system_prompt, logit_bias_
         confidence = np.exp(log_prob)
         return category, confidence
 
-
-def _generate_system_prompt(tagging_dict):
+def _generate_system_prompt(tagging_dict: dict[str, str]) -> str:
     """
     System prompt
     """
@@ -142,7 +170,7 @@ def _generate_system_prompt(tagging_dict):
     examples = ["INPUT: " + tagging_dict[i]["example"] + "\n OUTPUT: " + str(i) + "\n \n" for i in range(num_categories)]
     return f"""Your task is to classify the following text into one of the following categories: \n \n  {" ".join(categories_description)}. \n \n For example: {" ".join(examples)}. If the text does not clearly belong to any of the above categories, return `9`."""
 
-def _generate_logit_bias_dict(num_categories):
+def _generate_logit_bias_dict(num_categories: int) -> dict[str, int]:
     """
     Returns logit bias dictionary
     """

@@ -6,11 +6,12 @@ import pandas as pd
 import streamlit as st
 
 from utils import (
+    config_fail_validation,
+    render_download_page,
+    set_custom_css,
     set_page_configurations,
     set_session_state,
-    set_custom_css,
-    config_fail_validation,
-    automatically_tag_async,
+    start_async_tag_job
     )
 
 set_page_configurations()
@@ -47,7 +48,7 @@ if st.session_state["original_df"] is not None:
     column_to_classify = st.selectbox("Choose the column you wish to tag", 
                                       str_columns,
                                       help="Only columns with text data can be tagged.")
-        
+    
     st.subheader("Step 3: Define the categories")
 
     number_categories = st.number_input("Number of categories",
@@ -71,15 +72,12 @@ if st.session_state["original_df"] is not None:
             st.stop()
         
         with st.spinner("Tagging in progress..."):
-            st.session_state["tagged_df"] = asyncio.run(automatically_tag_async(st.session_state["original_df"],
-                                                                                column_to_classify,
-                                                                                st.session_state["tagging_configurations"]))
+            st.session_state["tagged_df"] = asyncio.run(start_async_tag_job(st.session_state["original_df"],
+                                                                            column_to_classify,
+                                                                            st.session_state["tagging_configurations"]))
         
         st.session_state["tagged_df"] = st.session_state["tagged_df"].sort_values("original_row_number").drop(columns="original_row_number")
 
         st.subheader("Step 4: Review and Download")
         st.dataframe(st.session_state["tagged_df"], use_container_width=True)
-        st.download_button("Download Tagged Data", 
-                        data=st.session_state["tagged_df"].to_csv(index=False), 
-                        file_name=f"{file.name[:-4]}_tagged.csv",
-                        mime="text/csv")
+        render_download_page()
