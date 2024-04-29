@@ -22,20 +22,24 @@ st.title("SATURN 🪐")
 st.caption("**S**imple **A**utomatic **T**agger yo**U** **R**eally **N**eeded")
 st.subheader("Step 1: Upload your data")
 
-file = st.file_uploader("Upload file",
-                        type=["csv", "xlsx", "xls"],
-                        label_visibility="hidden")
+uploaded_file = st.file_uploader("Upload file",
+                                 type=["csv", "xlsx", "xls"],
+                                 label_visibility="hidden")
 
 # Process uploaded file
-if file is not None:
+if uploaded_file is not None:
+
+    # Save the file name
+    st.session_state.uploaded_file_name = uploaded_file.name
+
     # Read file
-    if file.name.endswith("csv"):
-        st.session_state["original_df"] = pd.read_csv(file)
+    if st.session_state.uploaded_file_name.endswith("csv"):
+        st.session_state["original_df"] = pd.read_csv(uploaded_file)
     else:
-        st.session_state["original_df"] = pd.read_excel(file)
+        st.session_state["original_df"] = pd.read_excel(uploaded_file)
     st.session_state["num_rows"] = st.session_state["original_df"].shape[0]
 
-
+# This will load if there is an uploaded file
 if st.session_state["original_df"] is not None:
     st.subheader("Step 2: Choose the column to tag")
 
