@@ -55,16 +55,19 @@ if st.session_state["original_df"] is not None:
     
     st.subheader("Step 3: Define the categories")
 
-    number_categories = st.number_input("Number of categories",
+    tab_1, tab_2 = st.tabs(["Manual", "Upload Mapping Table"])
+
+    number_categories = tab_1.number_input("Number of categories",
                                         min_value=2,
                                         max_value=8,
                                         value=2,
                                         help="You can have a maximum of 10 categories. These categories should be mutually exclusive and collectively exhaustive.")
     
     # Allow users to upload their own mapping table
-    uploaded_mapping_table = st.file_uploader("Upload mapping table",
-                                     type=["csv", "xlsx", "xls"],
-                                     label_visibility="hidden")
+    uploaded_mapping_table = tab_2.file_uploader("Upload mapping table",
+                                     type=["csv", "xlsx", "xls"])
+    
+    st.divider()
 
     # This will generate a blank dataframe
     configurations = pd.DataFrame({"One word label": [None]*number_categories,
@@ -73,12 +76,12 @@ if st.session_state["original_df"] is not None:
 
     configurations.index = configurations.index+1
 
+    st.session_state["tagging_configurations"] = tab_1.data_editor(configurations, use_container_width=True)
+
     # This is the dataframe editor
-    if uploaded_mapping_table is None:
-        st.session_state["tagging_configurations"] = st.data_editor(configurations, use_container_width=True)
-    else:
+    if uploaded_mapping_table is not None:
         mapping_table_df = pd.read_csv(uploaded_mapping_table)
-        st.session_state["tagging_configurations"] = st.data_editor(mapping_table_df, use_container_width=True)
+        st.session_state["tagging_configurations"] = tab_2.dataframe(mapping_table_df, use_container_width=True)
 
     if st.button("Start Tagging"):
         status, error_message = config_fail_validation(st.session_state["tagging_configurations"])

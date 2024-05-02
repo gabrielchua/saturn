@@ -12,7 +12,7 @@ import pandas as pd
 import streamlit as st
 from openai import AsyncOpenAI
 
-from .config import (
+from config import (
     LLM,
     MAX_CONCURRENT_CALLS
     )
