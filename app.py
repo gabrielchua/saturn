@@ -65,7 +65,7 @@ if st.session_state["original_df"] is not None:
     
     # Allow users to upload their own mapping table
     uploaded_mapping_table = tab_2.file_uploader("Upload mapping table",
-                                     type=["csv", "xlsx", "xls"])
+                                                 type=["csv", "xlsx", "xls"])
     
     st.divider()
 
@@ -80,7 +80,10 @@ if st.session_state["original_df"] is not None:
 
     # This is the dataframe editor
     if uploaded_mapping_table is not None:
-        st.session_state["tagging_configurations"] = pd.read_csv(uploaded_mapping_table)
+        if uploaded_mapping_table.name.endswith("csv"):
+            st.session_state["tagging_configurations"] = pd.read_csv(uploaded_mapping_table)
+        else:
+            st.session_state["tagging_configurations"] = pd.read_excel(uploaded_mapping_table)
         tab_2.dataframe(st.session_state["tagging_configurations"], use_container_width=True)
 
     if st.button("Start Tagging"):
