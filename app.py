@@ -80,8 +80,8 @@ if st.session_state["original_df"] is not None:
 
     # This is the dataframe editor
     if uploaded_mapping_table is not None:
-        mapping_table_df = pd.read_csv(uploaded_mapping_table)
-        st.session_state["tagging_configurations"] = tab_2.dataframe(mapping_table_df, use_container_width=True)
+        st.session_state["tagging_configurations"] = pd.read_csv(uploaded_mapping_table)
+        tab_2.dataframe(st.session_state["tagging_configurations"], use_container_width=True)
 
     if st.button("Start Tagging"):
         status, error_message = config_fail_validation(st.session_state["tagging_configurations"])
